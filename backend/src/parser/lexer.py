@@ -148,12 +148,12 @@ class Lexer:
             (TokenType.BOOLEAN, r'true|false', None),
 
             # Keywords and identifiers
-            (TokenType.INT, r'\bint\b', None),
-            (TokenType.FLOAT_KW, r'\bfloat\b', None),
-            (TokenType.CHAR_KW, r'\bchar\b', None),
-            (TokenType.BOOL, r'\bbool\b', None),
-            (TokenType.PTR, r'\bptr\b', None),
-            (TokenType.STRING_KW, r'\bstring\b', None),
+            ('KW_INT', r'\bint\b', None),
+            ('KW_FLOAT', r'\bfloat\b', None),
+            ('KW_CHAR', r'\bchar\b', None),
+            ('KW_BOOL', r'\bbool\b', None),
+            ('KW_PTR', r'\bptr\b', None),
+            ('KW_STRING', r'\bstring\b', None),
             (TokenType.STRUCT, r'\bstruct\b', None),
             (TokenType.CLASS, r'\bclass\b', None),
             (TokenType.TEMPLATE, r'\btemplate\b', None),
