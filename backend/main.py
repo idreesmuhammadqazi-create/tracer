@@ -7,7 +7,13 @@ import sys
 import os
 
 # Add src to Python path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+current_dir = os.path.dirname(os.path.abspath(__file__))
+src_path = os.path.join(current_dir, 'src')
+sys.path.insert(0, src_path)
+
+print(f"Python path: {sys.path}")
+print(f"Current directory: {current_dir}")
+print(f"SRC path: {src_path}")
 
 from src.server.app import main
 
