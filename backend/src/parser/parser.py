@@ -47,7 +47,7 @@ class Parser:
         return self.tokens[self.current]
 
     def previous(self) -> Token:
-       Get the previous token"""
+        """Get the previous token"""
         return self.tokens[self.current - 1]
 
     def advance(self) -> Token:
