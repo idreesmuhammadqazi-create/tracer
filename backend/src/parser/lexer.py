@@ -255,7 +255,10 @@ class Lexer:
             # Find which token type matched
             for name, value in match.groupdict().items():
                 if value is not None:
-                    token_type = TokenType[name]
+                    if name in ['LINE_COMMENT', 'BLOCK_COMMENT']:
+                        token_type = TokenType.COMMENT
+                    else:
+                        token_type = TokenType[name]
                     token_value = value
                     break
 
