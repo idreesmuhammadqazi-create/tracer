@@ -14,6 +14,7 @@ from ..parser.lexer import Lexer
 from ..parser.parser import Parser
 from ..interpreter.executor import Executor
 from ..interpreter.memory import MemoryManager
+from ..codegen.cpp_generator import CppGenerator
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
