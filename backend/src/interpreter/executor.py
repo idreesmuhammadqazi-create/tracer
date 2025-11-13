@@ -3,7 +3,7 @@ Interpreter/Executor for LowLogic language
 Executes AST nodes with memory tracking and debugging
 """
 
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional, Union, Set
 from ..parser.ast_nodes import *
 from ..parser.lexer import ParserError
 from .memory import MemoryManager
