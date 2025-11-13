@@ -137,8 +137,8 @@ class Lexer:
             # Whitespace and comments
             (TokenType.WHITESPACE, r'[ \t]+', None),
             (TokenType.NEWLINE, r'\n', self._handle_newline),
-            (TokenType.COMMENT, r'//.*', None),
-            (TokenType.COMMENT, r'/\*[\s\S]*?\*/', self._handle_multiline_comment),
+            ('LINE_COMMENT', r'//.*', None),
+            ('BLOCK_COMMENT', r'/\*[\s\S]*?\*/', self._handle_multiline_comment),
 
             # Literals
             (TokenType.INTEGER, r'\d+', None),
