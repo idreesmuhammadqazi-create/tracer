@@ -15,7 +15,7 @@ print(f"Python path: {sys.path}")
 print(f"Current directory: {current_dir}")
 print(f"SRC path: {src_path}")
 
-from src.server.app import main
+from server.app import main
 
 if __name__ == "__main__":
     asyncio.run(main())
