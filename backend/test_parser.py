@@ -13,7 +13,7 @@ sys.path.insert(0, src_path)
 
 try:
     from parser.lexer import Lexer
-    from parser.parser import Parser
+    from parser.parser import Parser, ParserError
     from interpreter.executor import Executor
     from interpreter.memory import MemoryManager
     from codegen.cpp_generator import CppGenerator
