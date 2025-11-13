@@ -215,7 +215,13 @@ class Lexer:
         ]
 
         # Combine all patterns into a single regex
-        self.token_regex = '|'.join(f'(?P<{tok_type.name}>{pattern})' for tok_type, pattern, _ in self.token_specs)
+        regex_parts = []
+        for tok_type, pattern, _ in self.token_specs:
+            if isinstance(tok_type, str):
+                regex_parts.append(f'(?P<{tok_type}>{pattern})')
+            else:
+                regex_parts.append(f'(?P<{tok_type.name}>{pattern})')
+        self.token_regex = '|'.join(regex_parts)
         self.re_token = re.compile(self.token_regex)
 
     def _handle_newline(self, match):
