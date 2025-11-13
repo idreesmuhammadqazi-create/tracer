@@ -200,12 +200,34 @@ class LowLogicServer:
 
     async def handle_cpp_export(self, websocket: WebSocketServerProtocol, data: Dict[str, Any]):
         """Handle C++ export request"""
-        # TODO: Implement C++ code generation
-        await self.send_message(websocket, {
-            "type": "cpp_export_response",
-            "success": False,
-            "error": "C++ export not yet implemented"
-        })
+        try:
+            code = data.get("code", "")
+
+            # Parse the code
+            lexer = Lexer(code)
+            tokens = lexer.tokenize()
+
+            parser = Parser(tokens)
+            ast = parser.parse()
+
+            # Generate C++ code
+            generator = CppGenerator()
+            cpp_code = generator.generate(ast)
+
+            await self.send_message(websocket, {
+                "type": "cpp_export_response",
+                "success": True,
+                "cpp_code": cpp_code
+            })
+
+        except Exception as e:
+            await self.send_message(websocket, {
+                "type": "cpp_export_response",
+                "success": False,
+                "error": str(e),
+                "line": getattr(e, 'line', None),
+                "column": getattr(e, 'column', None)
+            })
 
     async def send_execution_state(self, websocket: WebSocketServerProtocol, state_type: str, data: Dict[str, Any]):
         """Send execution state update"""
