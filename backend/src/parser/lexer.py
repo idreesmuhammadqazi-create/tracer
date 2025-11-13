@@ -255,10 +255,18 @@ class Lexer:
             # Find which token type matched
             for name, value in match.groupdict().items():
                 if value is not None:
-                    if name in ['LINE_COMMENT', 'BLOCK_COMMENT']:
-                        token_type = TokenType.COMMENT
-                    else:
-                        token_type = TokenType[name]
+                    # Handle renamed tokens
+                    token_map = {
+                        'LINE_COMMENT': TokenType.COMMENT,
+                        'BLOCK_COMMENT': TokenType.COMMENT,
+                        'KW_INT': TokenType.INT,
+                        'KW_FLOAT': TokenType.FLOAT_KW,
+                        'KW_CHAR': TokenType.CHAR_KW,
+                        'KW_BOOL': TokenType.BOOL,
+                        'KW_PTR': TokenType.PTR,
+                        'KW_STRING': TokenType.STRING_KW,
+                    }
+                    token_type = token_map.get(name, TokenType[name])
                     token_value = value
                     break
 
