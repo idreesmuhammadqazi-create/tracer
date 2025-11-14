@@ -49,7 +49,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   const monacoRef = useRef<any>(null);
   const decorationRef = useRef<string[]>([]);
 
-  const { state, actions } = useWebSocket();
+  const { state, actions } = useLowLogicCompiler();
 
   // Define LowLogic language
   const defineLowLogicLanguage = useCallback((monaco: any) => {
