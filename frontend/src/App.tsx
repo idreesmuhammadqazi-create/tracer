@@ -208,7 +208,7 @@ function App() {
         </div>
       )}
 
-      <style jsx global>{`
+      <style>{`
         * {
           margin: 0;
           padding: 0;
