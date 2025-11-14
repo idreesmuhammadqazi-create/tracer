@@ -124,7 +124,7 @@ export class Interpreter {
     ].includes(node.type);
   }
 
-  private getLineNumber(statement: ASTNode): number {
+  private getLineNumber(): number {
     // In a real implementation, this would come from token position info
     // For now, we'll use a simple line counter
     return this.currentLine;
