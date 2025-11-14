@@ -347,42 +347,7 @@ function App() {
           border: 1px solid #4ec9b0;
         }
 
-        /* SplitPane overrides */
-        .Resizer {
-          background-color: #333333;
-          opacity: 0.2;
-          z-index: 1;
-          -moz-box-sizing: border-box;
-          -webkit-box-sizing: border-box;
-          box-sizing: border-box;
-          -moz-background-clip: padding;
-          -webkit-background-clip: padding;
-          background-clip: padding-box;
-        }
-
-        .Resizer:hover {
-          -webkit-transition: all 2s ease;
-          transition: all 2s ease;
-          opacity: 0.5;
-        }
-
-        .Resizer.horizontal {
-          height: 11px;
-          margin: -5px 0;
-          border-top: 5px solid rgba(255, 255, 255, 0);
-          border-bottom: 5px solid rgba(255, 255, 255, 0);
-          cursor: row-resize;
-          width: 100%;
-        }
-
-        .Resizer.vertical {
-          width: 11px;
-          margin: 0 -5px;
-          border-left: 5px solid rgba(255, 255, 255, 0);
-          border-right: 5px solid rgba(255, 255, 255, 0);
-          cursor: col-resize;
-        }
-
+  
         /* Modal styles */
         .modal-overlay {
           position: fixed;
