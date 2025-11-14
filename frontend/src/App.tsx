@@ -162,23 +162,25 @@ function App() {
               <button
                 className="copy-button"
                 onClick={() => {
-                  navigator.clipboard.writeText(state.cppCode);
-                  // Simple notification
-                  const notification = document.createElement('div');
-                  notification.textContent = 'C++ code copied to clipboard!';
-                  notification.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background-color: #4ec9b0;
-                    color: white;
-                    padding: 12px 16px;
-                    border-radius: 4px;
-                    z-index: 10000;
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-                  `;
-                  document.body.appendChild(notification);
-                  setTimeout(() => document.body.removeChild(notification), 2000);
+                  if (state.cppCode) {
+                    navigator.clipboard.writeText(state.cppCode);
+                    // Simple notification
+                    const notification = document.createElement('div');
+                    notification.textContent = 'C++ code copied to clipboard!';
+                    notification.style.cssText = `
+                      position: fixed;
+                      top: 20px;
+                      right: 20px;
+                      background-color: #4ec9b0;
+                      color: white;
+                      padding: 12px 16px;
+                      border-radius: 4px;
+                      z-index: 10000;
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                    `;
+                    document.body.appendChild(notification);
+                    setTimeout(() => document.body.removeChild(notification), 2000);
+                  }
                 }}
               >
                 Copy to Clipboard
