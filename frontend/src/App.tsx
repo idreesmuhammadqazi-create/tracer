@@ -118,9 +118,7 @@ function App() {
                 <span>Memory Inspector</span>
               </div>
               <div className="panel-content">
-                <MemoryVisualizer
-                  memoryState={state.memory}
-                />
+                <MemoryVisualizer />
               </div>
             </div>
 
