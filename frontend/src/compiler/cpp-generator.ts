@@ -45,7 +45,7 @@ export class CppGenerator {
       this.generateMainFunction(ast.declarations);
     }
 
-    return '\n'.join(this.outputLines);
+    return this.outputLines.join('\n');
   }
 
   private addInclude(include: string): void {
