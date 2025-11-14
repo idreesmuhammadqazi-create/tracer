@@ -158,7 +158,7 @@ export class Lexer {
     return this.tokens;
   }
 
-  private getTokenType(tokenType: TokenType | string, value: string): TokenType {
+  private getTokenType(tokenType: TokenType | string, _value: string): TokenType {
     // Handle renamed tokens
     const tokenMap: Record<string, TokenType> = {
       'LINE_COMMENT': TokenType.COMMENT,
