@@ -347,7 +347,6 @@ function App() {
           border: 1px solid #4ec9b0;
         }
 
-  
         /* Modal styles */
         .modal-overlay {
           position: fixed;
