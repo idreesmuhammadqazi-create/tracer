@@ -84,7 +84,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         root: [
           // Comments
           [/[ \t\r\n]+/, 'white'],
-          [//.*$/, 'comment'],
+          [/\/\/.*$/, 'comment'],
           [/\/*/, 'comment', '@comment'],
 
           // Strings and characters
