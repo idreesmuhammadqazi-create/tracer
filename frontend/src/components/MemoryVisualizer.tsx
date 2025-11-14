@@ -119,7 +119,9 @@ const CallStackDisplay: React.FC<CallStackDisplayProps> = ({ callStack, selected
   );
 };
 
-export const MemoryVisualizer: React.FC<MemoryVisualizerProps> = ({ memoryState, className }) => {
+export const MemoryVisualizer: React.FC<MemoryVisualizerProps> = ({ className }) => {
+  const { state } = useLowLogicCompiler();
+  const memoryState = state.memory;
   const [selectedAddress, setSelectedAddress] = useState<string>();
   const [selectedFrame, setSelectedFrame] = useState<number>();
   const [activeTab, setActiveTab] = useState<'variables' | 'heap' | 'stack'>('variables');
