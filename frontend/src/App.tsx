@@ -17,6 +17,12 @@ function App() {
       return;
     }
 
+    if (event.shiftKey && event.key === 'F5') {
+      event.preventDefault();
+      actions.resetExecution();
+      return;
+    }
+
     if (event.ctrlKey || event.metaKey) {
       switch (event.key) {
         case 'Enter':
@@ -32,11 +38,6 @@ function App() {
           event.preventDefault();
           if (state.execution.status === 'paused' || state.execution.status === 'running') {
             actions.stepExecution();
-          }
-          break;
-        if (event.shiftKey && event.key === 'F5') {
-            event.preventDefault();
-            actions.resetExecution();
           }
           break;
         case 's':
