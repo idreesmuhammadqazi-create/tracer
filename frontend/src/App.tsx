@@ -188,15 +188,17 @@ function App() {
               <button
                 className="download-button"
                 onClick={() => {
-                  const blob = new Blob([state.cppCode], { type: 'text/plain' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = 'generated_code.cpp';
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(url);
+                  if (state.cppCode) {
+                    const blob = new Blob([state.cppCode], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'generated_code.cpp';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                  }
                 }}
               >
                 Download File
