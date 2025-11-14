@@ -490,7 +490,7 @@ export class Parser {
     const type_ = this.type();
     return {
       type: 'NewExpression',
-      type: type_
+      varType: type_
     };
   }
 
