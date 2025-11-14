@@ -90,7 +90,6 @@ function App() {
           defaultSize="50%"
           className="main-split-pane"
         >
-          {/* Left Panel - Code Editor */}
           <div className="left-panel">
             <div className="panel-header">
               <Code size={16} />
@@ -106,7 +105,6 @@ function App() {
             </div>
           </div>
 
-          {/* Right Panel - Memory Visualizer */}
           <SplitPane
             split="horizontal"
             minSize={200}
