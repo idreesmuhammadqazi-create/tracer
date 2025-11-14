@@ -34,8 +34,7 @@ function App() {
             actions.stepExecution();
           }
           break;
-        case 'Shift':
-          if (event.key === 'F5') {
+        if (event.shiftKey && event.key === 'F5') {
             event.preventDefault();
             actions.resetExecution();
           }
