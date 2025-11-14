@@ -283,20 +283,32 @@ function App() {
           background-color: #0d1117;
         }
 
-        .main-split-pane {
-          position: relative !important;
+        .content-layout {
+          display: flex;
+          height: 100%;
+          gap: 1px;
         }
 
-        .right-split-pane {
-          position: relative !important;
-        }
-
-        .left-panel,
-        .memory-panel,
-        .console-panel {
+        .left-panel {
+          flex: 1;
           display: flex;
           flex-direction: column;
-          height: 100%;
+          background-color: #1e1e1e;
+          border: 1px solid #333333;
+        }
+
+        .right-panel {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 1px;
+        }
+
+        .memory-panel,
+        .console-panel {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
           background-color: #1e1e1e;
           border: 1px solid #333333;
         }
