@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import SplitPane from 'react-split-pane';
 import { Terminal, MemoryStick, Code, Globe, Zap } from 'lucide-react';
 import { CodeEditor } from './components/CodeEditor';
 import { ExecutionControls } from './components/ExecutionControls';
