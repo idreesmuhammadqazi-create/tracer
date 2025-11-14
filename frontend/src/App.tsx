@@ -142,13 +142,13 @@ function App() {
 
       {/* C++ Export Modal */}
       {state.cppCode && (
-        <div className="modal-overlay" onClick={() => setState(prev => ({ ...prev, cppCode: undefined }))}>
+        <div className="modal-overlay" onClick={() => actions.resetExecution()}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Generated C++ Code</h3>
               <button
                 className="close-button"
-                onClick={() => setState(prev => ({ ...prev, cppCode: undefined }))}
+                onClick={() => actions.resetExecution()}
               >
                 ×
               </button>
