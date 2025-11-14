@@ -180,7 +180,7 @@ export class Lexer {
 
   getTokensDebug(): string {
     return this.tokens.map(token =>
-      `Token(${token.type.value}, '${token.value}', ${token.line}:${token.column})`
+      `Token(${token.type}, '${token.value}', ${token.line}:${token.column})`
     ).join('\n');
   }
 }
