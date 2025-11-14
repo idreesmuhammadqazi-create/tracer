@@ -313,12 +313,8 @@ export class CppGenerator {
       }
     }
 
-    this.outputLines.push('return 0;');
+    this.outputLines.push('  return 0;');
     this.indentLevel--;
     this.outputLines.push('}');
-  }
-
-  private getIndent(): string {
-    return '    '.repeat(this.indentLevel);
   }
 }
