@@ -60,8 +60,7 @@ export class Interpreter {
           line: this.currentLine,
           finished: false,
           output: [...this.outputBuffer],
-          memoryChanges: [],
-          reason: 'breakpoint'
+          memoryChanges: []
         };
       }
 
@@ -73,7 +72,7 @@ export class Interpreter {
         line: this.currentLine,
         finished: false,
         output: [...this.outputBuffer],
-        memoryChanges: this.memoryChanges.slice(-1)
+        memoryChanges: []
       };
 
     } catch (error: any) {
@@ -95,7 +94,7 @@ export class Interpreter {
     while (true) {
       const result = this.step();
 
-      if (result.finished || result.reason === 'breakpoint') {
+      if (result.finished || (result.line && this.breakpoints.has(result.line))) {
         return result;
       }
     }
@@ -125,7 +124,7 @@ export class Interpreter {
     ].includes(node.type);
   }
 
-  private getLineNumber(node: ASTNode): number {
+  private getLineNumber(statement: ASTNode): number {
     // In a real implementation, this would come from token position info
     // For now, we'll use a simple line counter
     return this.currentLine;
@@ -298,8 +297,6 @@ export class Interpreter {
   private evaluateBinaryOperation(expr: BinaryOperationExpression): any {
     const left = this.evaluateExpression(expr.left);
     const right = this.evaluateExpression(expr.right);
-    const leftType = this.getExpressionType(expr.left);
-    const rightType = this.getExpressionType(expr.right);
 
     // Perform operation
     switch (expr.operator) {
@@ -399,15 +396,16 @@ export class Interpreter {
     throw new Error(`Unknown function: ${expr.callee.type}`);
   }
 
-  private evaluateArrayAccess(expr: ArrayAccessExpression): any {
+  private evaluateArrayAccess(arrayExpr: ArrayAccessExpression): any {
     throw new Error('Array access not implemented yet');
   }
 
-  private evaluateMemberAccess(expr: MemberAccessExpression): any {
+  private evaluateMemberAccess(memberExpr: MemberAccessExpression): any {
     throw new Error('Member access not implemented yet');
   }
 
-  private getExpressionType(expr: ASTNode): string {
+  private getExpressionType(expr: ASTNode | undefined): string {
+    if (!expr) return 'unknown';
     switch (expr.type) {
       case 'LiteralExpression':
         return (expr as LiteralExpression).literalType;
