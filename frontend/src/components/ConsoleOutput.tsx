@@ -11,8 +11,7 @@ export const ConsoleOutput: React.FC = () => {
   }, [state.execution.output]);
 
   const clearConsole = () => {
-    // This would need to be added to the WebSocket hook
-    console.log('Clear console');
+    actions.resetExecution();
   };
 
   return (
