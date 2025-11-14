@@ -83,12 +83,7 @@ function App() {
 
       {/* Main Content */}
       <div className="main-content">
-        <SplitPane
-          split="vertical"
-          minSize={400}
-          defaultSize="50%"
-          className="main-split-pane"
-        >
+        <div className="content-layout">
           <div className="left-panel">
             <div className="panel-header">
               <Code size={16} />
@@ -104,12 +99,7 @@ function App() {
             </div>
           </div>
 
-          <SplitPane
-            split="horizontal"
-            minSize={200}
-            defaultSize="70%"
-            className="right-split-pane"
-          >
+          <div className="right-panel">
             {/* Memory Visualizer */}
             <div className="memory-panel">
               <div className="panel-header">
@@ -131,8 +121,8 @@ function App() {
                 <ConsoleOutput />
               </div>
             </div>
-          </SplitPane>
-        </SplitPane>
+          </div>
+        </div>
       </div>
 
       {/* C++ Export Modal */}
