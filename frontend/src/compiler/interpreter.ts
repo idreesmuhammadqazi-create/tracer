@@ -52,7 +52,7 @@ export class Interpreter {
       }
 
       const statement = statements[this.currentStatementIndex];
-      this.currentLine = this.getLineNumber(statement);
+      this.currentLine = this.getLineNumber();
 
       // Check for breakpoint
       if (this.currentLine && this.breakpoints.has(this.currentLine)) {
