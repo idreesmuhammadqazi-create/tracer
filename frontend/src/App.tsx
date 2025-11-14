@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import SplitPane from 'react-split-pane';
-import { Play, Pause, StepForward, Square, RotateCcw, Download, Terminal, MemoryStick, Code, Globe, Zap } from 'lucide-react';
+import { Terminal, MemoryStick, Code, Globe, Zap } from 'lucide-react';
 import { CodeEditor } from './components/CodeEditor';
 import { ExecutionControls } from './components/ExecutionControls';
 import { MemoryVisualizer } from './components/MemoryVisualizer';
