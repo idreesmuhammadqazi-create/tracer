@@ -396,11 +396,11 @@ export class Interpreter {
     throw new Error(`Unknown function: ${expr.callee.type}`);
   }
 
-  private evaluateArrayAccess(arrayExpr: ArrayAccessExpression): any {
+  private evaluateArrayAccess(_arrayExpr: ArrayAccessExpression): any {
     throw new Error('Array access not implemented yet');
   }
 
-  private evaluateMemberAccess(memberExpr: MemberAccessExpression): any {
+  private evaluateMemberAccess(_memberExpr: MemberAccessExpression): any {
     throw new Error('Member access not implemented yet');
   }
 
