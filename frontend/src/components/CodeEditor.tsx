@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import Editor from '@monaco-editor/react';
 import { editor } from 'monaco-editor';
-import { useWebSocket } from '../hooks/useWebSocket';
+import { useLowLogicCompiler } from '../hooks/useLowLogicCompiler';
 import { Breakpoint, EditorError } from '../types';
 
 interface CodeEditorProps {
