@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
+import { useLowLogicCompiler } from '../hooks/useLowLogicCompiler';
 import { MemoryState, VariableInfo, HeapAllocation, CallStackFrame } from '../types';
 
 interface MemoryVisualizerProps {
-  memoryState?: MemoryState;
   className?: string;
 }
 
