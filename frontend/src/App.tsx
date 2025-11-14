@@ -129,7 +129,7 @@ function App() {
                 <span>Console</span>
               </div>
               <div className="panel-content">
-                <ConsoleOutput output={state.execution.output} />
+                <ConsoleOutput />
               </div>
             </div>
           </SplitPane>
