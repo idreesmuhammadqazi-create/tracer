@@ -60,7 +60,7 @@ export class Parser {
 
   private consume(tokenType: TokenType, message: string): Token {
     if (this.check(tokenType)) return this.advance();
-    throw new Error(`${message}. Found ${this.peek().type.value} at line ${this.peek().line}`);
+    throw new Error(`${message}. Found ${String(this.peek().type)} at line ${this.peek().line}`);
   }
 
   private declaration(): ASTNode | null {
