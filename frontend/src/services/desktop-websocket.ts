@@ -76,7 +76,12 @@ class DesktopWebSocketService {
         type: 'parse_response',
         success: result.success,
         ast: result.ast,
-        tokens: result.tokens,
+        tokens: result.tokens?.map(token => ({
+          type: typeof token.type === 'string' ? token.type : String(token.type),
+          value: token.value,
+          line: token.line,
+          column: token.column
+        })),
         error: result.error,
         line: result.line,
         column: result.column
