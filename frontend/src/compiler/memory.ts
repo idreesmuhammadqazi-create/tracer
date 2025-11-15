@@ -25,7 +25,7 @@ export class MemoryManager {
     this.heapAllocations.clear();
     this.addressToAllocation.clear();
     this.callStack = [];
-    this.globalVariables.clear();
+    this.globalVariables = {};
     this.memoryChanges = [];
     this.stackPointer = this.stackBase;
     this.heapPointer = this.heapBase;
