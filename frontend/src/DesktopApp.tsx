@@ -453,7 +453,7 @@ function DesktopApp() {
         .download-button:active {
           background-color: #0d4f8c;
         }
-      `}</style>
+    `}</style>
     </div>
   );
 }
