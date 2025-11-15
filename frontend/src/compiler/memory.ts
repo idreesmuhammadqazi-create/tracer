@@ -268,9 +268,9 @@ export class MemoryManager {
       callStack: this.getCallStack(),
       heapAllocations: this.getHeapState(),
       pointerGraph: this.getPointerGraph(),
-      stackPointer: this.addressToHex(this.stackPointer),
-      heapPointer: this.addressToHex(this.heapPointer),
-      staticPointer: this.addressToHex(this.staticPointer)
+      stackPointer: this.stackPointer,
+      heapPointer: this.heapPointer,
+      staticPointer: this.staticPointer
     };
   }
 
