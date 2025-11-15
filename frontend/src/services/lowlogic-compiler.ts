@@ -91,7 +91,7 @@ export class LowLogicCompiler {
 
     this.interpreter = new Interpreter(this.currentAST!, this.memoryManager);
     this.interpreter.reset();
-    this.interpreter.setBreakpoints(this.breakpoints);
+    this.interpreter.setBreakpoints(Array.from(this.breakpoints));
 
     this.executionState = {
       status: 'running',
