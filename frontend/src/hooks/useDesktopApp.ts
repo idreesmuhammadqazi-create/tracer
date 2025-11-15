@@ -180,7 +180,7 @@ export const useDesktopApp = () => {
           result = await window.electronAPI.showSaveDialog();
         }
 
-        if (!result.canceled) {
+        if (!result.canceled && result.filePath) {
           await window.electronAPI.saveFile(content, result.filePath);
           return true;
         }
