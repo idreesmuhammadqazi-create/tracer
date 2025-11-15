@@ -59,7 +59,7 @@ export class LowLogicCompiler {
         success: true,
         ast,
         tokens: tokens.map(token => ({
-          type: token.type.value,
+          type: typeof token.type === 'string' ? token.type : String(token.type),
           value: token.value,
           line: token.line,
           column: token.column
