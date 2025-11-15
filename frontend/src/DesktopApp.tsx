@@ -193,7 +193,7 @@ function DesktopApp() {
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         * {
           margin: 0;
           padding: 0;
