@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { webSocketService } from '../services/websocket';
+import { desktopWebSocketService } from '../services/desktop-websocket';
 import {
   WebSocketMessage,
   ParseResponse,
@@ -38,10 +38,44 @@ const initialState: AppState = {
   editor: initialEditorState,
   execution: initialExecutionState,
   memory: initialMemoryState,
-  connected: false,
+  connected: true, // Always true in desktop mode
 };
 
-export const useWebSocket = () => {
+const defaultCode = `// Welcome to LowLogic - A traceable low-level mode
+// Try running this example code step by step!
+
+int a = 5;
+ptr<int> b = &a;
+*b = 10;
+print(a);
+
+// Array example
+int arr[3] = {1, 2, 3};
+print(arr[0]);
+print(arr[1]);
+print(arr[2]);
+
+// Pointer arithmetic example
+ptr<int> ptr_to_arr = arr;
+*(ptr_to_arr + 1) = 42;
+print(arr[1]);
+
+// Control flow example
+int x = 10;
+if (x > 5) {
+    print("x is greater than 5");
+} else {
+    print("x is not greater than 5");
+}
+
+// Loop example
+int i = 0;
+while (i < 3) {
+    print(i);
+    i = i + 1;
+}`;
+
+export const useDesktopApp = () => {
   const [state, setState] = useState<AppState>(initialState);
 
   // Update state helper
@@ -63,22 +97,10 @@ export const useWebSocket = () => {
     }));
   }, []);
 
-  const updateMemory = useCallback((updates: Partial<MemoryVisualizationState>) => {
-    setState(prev => ({
-      ...prev,
-      memory: { ...prev.memory, ...updates }
-    }));
-  }, []);
-
   // WebSocket message handlers
   useEffect(() => {
-    const handleConnectionEstablished = (message: WebSocketMessage) => {
-      updateState({ connected: true });
-    };
-
     const handleParseResponse = (message: ParseResponse) => {
       if (!message.success && message.error) {
-        // Add parsing errors to editor
         const error: EditorError = {
           line: message.line || 1,
           column: message.column || 1,
@@ -104,20 +126,12 @@ export const useWebSocket = () => {
       } else {
         updateEditor({ currentLine: message.line || 0 });
       }
-
-      if (message.memory_state) {
-        // Memory state is handled separately
-      }
-    };
-
-    const handleMemoryResponse = (message: MemoryResponse) => {
-      // Memory state can be handled here if needed
-      console.log('Memory state received:', message.state);
     };
 
     const handleCppExport = (message: CppExportResponse) => {
       if (message.success && message.cpp_code) {
         updateState({ cppCode: message.cpp_code });
+        handleFileSave(message.cpp_code, 'cpp');
       } else if (message.error) {
         console.error('C++ export failed:', message.error);
       }
@@ -131,73 +145,99 @@ export const useWebSocket = () => {
     };
 
     // Register event handlers
-    webSocketService.on('connection_established', handleConnectionEstablished);
-    webSocketService.on('parse_response', handleParseResponse);
-    webSocketService.on('execution_ready', handleExecutionState);
-    webSocketService.on('execution_step', handleExecutionState);
-    webSocketService.on('execution_paused', handleExecutionState);
-    webSocketService.on('memory_response', handleMemoryResponse);
-    webSocketService.on('cpp_export_response', handleCppExport);
-    webSocketService.on('error', handleError);
+    desktopWebSocketService.on('parse_response', handleParseResponse);
+    desktopWebSocketService.on('execution_ready', handleExecutionState);
+    desktopWebSocketService.on('execution_step', handleExecutionState);
+    desktopWebSocketService.on('execution_paused', handleExecutionState);
+    desktopWebSocketService.on('cpp_export_response', handleCppExport);
+    desktopWebSocketService.on('error', handleError);
+
+    // Initialize with default code
+    if (!state.editor.code.trim()) {
+      updateEditor({ code: defaultCode });
+      desktopWebSocketService.parseCode(defaultCode);
+    }
 
     // Cleanup
     return () => {
-      webSocketService.off('connection_established', handleConnectionEstablished);
-      webSocketService.off('parse_response', handleParseResponse);
-      webSocketService.off('execution_ready', handleExecutionState);
-      webSocketService.off('execution_step', handleExecutionState);
-      webSocketService.off('execution_paused', handleExecutionState);
-      webSocketService.off('memory_response', handleMemoryResponse);
-      webSocketService.off('cpp_export_response', handleCppExport);
-      webSocketService.off('error', handleError);
+      desktopWebSocketService.off('parse_response', handleParseResponse);
+      desktopWebSocketService.off('execution_ready', handleExecutionState);
+      desktopWebSocketService.off('execution_step', handleExecutionState);
+      desktopWebSocketService.off('execution_paused', handleExecutionState);
+      desktopWebSocketService.off('cpp_export_response', handleCppExport);
+      desktopWebSocketService.off('error', handleError);
     };
-  }, [updateState, updateEditor, updateExecution]);
+  }, []);
+
+  // File operations
+  const handleFileSave = useCallback(async (content: string, type: 'lowlogic' | 'cpp' = 'lowlogic') => {
+    if (window.electronAPI) {
+      try {
+        let result;
+        if (type === 'cpp') {
+          result = await window.electronAPI.showExportDialog();
+        } else {
+          result = await window.electronAPI.showSaveDialog();
+        }
+
+        if (!result.canceled) {
+          await window.electronAPI.saveFile(content, result.filePath);
+          return true;
+        }
+      } catch (error) {
+        console.error('Save failed:', error);
+      }
+    }
+    return false;
+  }, []);
 
   // Action methods
   const parseCode = useCallback((code: string) => {
     updateEditor({ code });
-    webSocketService.parseCode(code);
+    desktopWebSocketService.parseCode(code);
   }, [updateEditor]);
 
   const startExecution = useCallback((code: string, breakpoints?: number[]) => {
     updateExecution({ status: 'running', output: [], error: undefined });
-    webSocketService.startExecution(code, breakpoints);
+    desktopWebSocketService.startExecution(code, breakpoints);
   }, [updateExecution]);
 
   const stepExecution = useCallback(() => {
     if (state.execution.status === 'paused' || state.execution.status === 'running') {
       updateExecution({ status: 'running' });
-      webSocketService.stepExecution();
+      desktopWebSocketService.stepExecution();
     }
   }, [state.execution.status, updateExecution]);
 
   const continueExecution = useCallback((breakpoints?: number[]) => {
     if (state.execution.status === 'paused') {
       updateExecution({ status: 'running' });
-      webSocketService.continueExecution(breakpoints);
+      desktopWebSocketService.continueExecution(breakpoints);
     }
   }, [state.execution.status, updateExecution]);
 
   const resetExecution = useCallback(() => {
     updateExecution(initialExecutionState);
     updateEditor({ currentLine: 0 });
-    webSocketService.resetExecution();
+    desktopWebSocketService.resetExecution();
   }, [updateExecution, updateEditor]);
 
   const exportToCpp = useCallback((code: string) => {
-    webSocketService.exportToCpp(code);
+    desktopWebSocketService.exportToCpp(code);
   }, []);
+
+  const saveFile = useCallback(() => {
+    handleFileSave(state.editor.code, 'lowlogic');
+  }, [state.editor.code, handleFileSave]);
 
   const toggleBreakpoint = useCallback((line: number) => {
     const existingBreakpoint = state.editor.breakpoints.find(bp => bp.line === line);
 
     if (existingBreakpoint) {
-      // Remove breakpoint
       updateEditor({
         breakpoints: state.editor.breakpoints.filter(bp => bp.line !== line)
       });
     } else {
-      // Add breakpoint
       const newBreakpoint: Breakpoint = { line, enabled: true };
       updateEditor({
         breakpoints: [...state.editor.breakpoints, newBreakpoint]
@@ -222,6 +262,7 @@ export const useWebSocket = () => {
       continueExecution,
       resetExecution,
       exportToCpp,
+      saveFile,
       toggleBreakpoint,
       setCursor,
       clearErrors,

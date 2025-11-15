@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import Editor from '@monaco-editor/react';
 import { editor } from 'monaco-editor';
-import { useWebSocket } from '../hooks/useWebSocket';
+import { useLowLogicCompiler } from '../hooks/useLowLogicCompiler';
 import { Breakpoint, EditorError } from '../types';
 
 interface CodeEditorProps {
@@ -49,121 +49,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   const monacoRef = useRef<any>(null);
   const decorationRef = useRef<string[]>([]);
 
-  const { state, actions } = useWebSocket();
-
-  // Define LowLogic language
-  const defineLowLogicLanguage = useCallback((monaco: any) => {
-    // Register LowLogic language
-    monaco.languages.register({ id: 'lowlogic' });
-
-    // Define language tokens
-    monaco.languages.setMonarchTokensProvider('lowlogic', {
-      // Keywords
-      keywords: [
-        'int', 'float', 'char', 'bool', 'string', 'ptr',
-        'struct', 'class', 'template', 'typename',
-        'public', 'private',
-        'if', 'else', 'while', 'for', 'break', 'continue', 'return',
-        'new', 'delete', 'null', 'true', 'false'
-      ],
-
-      // Operators
-      operators: [
-        '=', '+', '-', '*', '/', '%',
-        '==', '!=', '<', '>', '<=', '>=',
-        '&&', '||', '!',
-        '&', '*', '->', '.',
-        '++', '--', '+=', '-=', '*=', '/='
-      ],
-
-      // Symbols
-      symbols: /[=><!~?:&|+\-*\/\^%]+/,
-
-      // Token patterns
-      tokenizer: {
-        root: [
-          // Comments
-          [/[ \t\r\n]+/, 'white'],
-          [//.*$/, 'comment'],
-          [/\/*/, 'comment', '@comment'],
-
-          // Strings and characters
-          [/"([^"\\]|\\.)*$/, 'string.invalid'],
-          [/"/, 'string', '@string'],
-          [/'[^\\']'/, 'string'],
-          [/(')(@escapes)(')/, ['string', 'string.escape', 'string']],
-
-          // Numbers
-          [/\d*\.\d+([eE][\-+]?\d+)?/, 'number.float'],
-          [/\d+/, 'number'],
-
-          // Keywords
-          [
-            /[a-zA-Z_]\w*/,
-            {
-              cases: {
-                '@keywords': 'keyword',
-                '@default': 'identifier'
-              }
-            }
-          ],
-
-          // Delimiters and operators
-          [/[{}()\[\]]/, '@brackets'],
-          [/[<>](?!@symbols)/, '@brackets'],
-          [/@symbols/, {
-            cases: {
-              '@operators': 'operator',
-              '@default': ''
-            }
-          }],
-
-          // Other
-          [/[;,]/, 'delimiter'],
-        ],
-
-        comment: [
-          [/[^\/*]+/, 'comment'],
-          [/\*\//, 'comment', '@pop'],
-          [/[\/*]/, 'comment']
-        ],
-
-        string: [
-          [/[^\\"]+/, 'string'],
-          [/@escapes/, 'string.escape'],
-          [/\\./, 'string.escape.invalid'],
-          [/"/, 'string', '@pop']
-        ],
-      },
-    });
-
-    // Set language configuration
-    monaco.languages.setLanguageConfiguration('lowlogic', {
-      comments: {
-        blockComment: ['/*', '*/'],
-        lineComment: '//'
-      },
-      brackets: [
-        ['{', '}'],
-        ['[', ']'],
-        ['(', ')']
-      ],
-      autoClosingPairs: [
-        { open: '{', close: '}' },
-        { open: '[', close: ']' },
-        { open: '(', close: ')' },
-        { open: '"', close: '"' },
-        { open: "'", close: "'" },
-      ],
-      surroundingPairs: [
-        { open: '{', close: '}' },
-        { open: '[', close: ']' },
-        { open: '(', close: ')' },
-        { open: '"', close: '"' },
-        { open: "'", close: "'" },
-      ]
-    });
-  }, []);
+  const { state, actions } = useLowLogicCompiler();
 
   // Update decorations (current line, breakpoints, errors)
   const updateDecorations = useCallback(() => {
@@ -221,9 +107,6 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     editorRef.current = editor;
     monacoRef.current = monaco;
 
-    // Define LowLogic language
-    defineLowLogicLanguage(monaco);
-
     // Apply theme
     monaco.editor.defineTheme('lowlogic-dark', LowLogicMonacoTheme);
     monaco.editor.setTheme('lowlogic-dark');
@@ -272,7 +155,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     if (onMount) {
       onMount(editor);
     }
-  }, [defineLowLogicLanguage, actions, updateDecorations, onMount]);
+  }, [actions, updateDecorations, onMount]);
 
   // Update decorations when state changes
   useEffect(() => {
@@ -330,7 +213,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     <div className="code-editor" style={{ height }}>
       <Editor
         height="100%"
-        defaultLanguage="lowlogic"
+        defaultLanguage="cpp"
         defaultValue={state.editor.code}
         theme="vs-dark"
         onMount={handleEditorDidMount}

@@ -1,52 +1,27 @@
-import React, { useState, useCallback } from 'react';
-import SplitPane from 'react-split-pane';
-import { Play, Pause, StepForward, Square, RotateCcw, Download, Terminal, MemoryStick, Code } from 'lucide-react';
+import React, { useCallback } from 'react';
+import { Terminal, MemoryStick, Code, Globe, Zap } from 'lucide-react';
 import { CodeEditor } from './components/CodeEditor';
 import { ExecutionControls } from './components/ExecutionControls';
 import { MemoryVisualizer } from './components/MemoryVisualizer';
 import { ConsoleOutput } from './components/ConsoleOutput';
-import { useWebSocket } from './hooks/useWebSocket';
-
-const defaultCode = `// Welcome to LowLogic - A traceable low-level mode
-// Try running this example code step by step!
-
-int a = 5;
-ptr<int> b = &a;
-*b = 10;
-print(a);
-
-// Array example
-int arr[3] = {1, 2, 3};
-print(arr[0]);
-print(arr[1]);
-print(arr[2]);
-
-// Pointer arithmetic example
-ptr<int> ptr_to_arr = arr;
-*(ptr_to_arr + 1) = 42;
-print(arr[1]);
-
-// Control flow example
-int x = 10;
-if (x > 5) {
-    print("x is greater than 5");
-} else {
-    print("x is not greater than 5");
-}
-
-// Loop example
-int i = 0;
-while (i < 3) {
-    print(i);
-    i = i + 1;
-}`;
+import { useLowLogicCompiler } from './hooks/useLowLogicCompiler';
 
 function App() {
-  const { state, actions } = useWebSocket();
-  const [showCppModal, setShowCppModal] = useState(false);
+  const { state, actions } = useLowLogicCompiler();
 
+  // Handle keyboard shortcuts
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    // Keyboard shortcuts
+    // Prevent shortcuts when typing in editor
+    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+      return;
+    }
+
+    if (event.shiftKey && event.key === 'F5') {
+      event.preventDefault();
+      actions.resetExecution();
+      return;
+    }
+
     if (event.ctrlKey || event.metaKey) {
       switch (event.key) {
         case 'Enter':
@@ -64,11 +39,13 @@ function App() {
             actions.stepExecution();
           }
           break;
-        case 'Shift':
-          if (event.key === 'F5') {
-            event.preventDefault();
-            actions.resetExecution();
-          }
+        case 's':
+          event.preventDefault();
+          // Save functionality could be added here
+          break;
+        case 'e':
+          event.preventDefault();
+          actions.exportToCpp(state.editor.code);
           break;
       }
     }
@@ -77,15 +54,10 @@ function App() {
   // Set up keyboard shortcuts
   React.useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [handleKeyDown]);
-
-  // Set initial code if empty
-  React.useEffect(() => {
-    if (!state.editor.code.trim()) {
-      actions.parseCode(defaultCode);
-    }
-  }, [state.editor.code, actions.parseCode]);
 
   return (
     <div className="app">
@@ -93,15 +65,15 @@ function App() {
       <header className="app-header">
         <div className="header-left">
           <h1 className="app-title">
-            <MemoryStick size={20} />
+            <Zap size={20} />
             LowLogic
           </h1>
-          <span className="app-subtitle">Traceable Low-Level Mode</span>
+          <span className="app-subtitle">Traceable Low-Level Mode (Browser)</span>
         </div>
         <div className="header-right">
           <div className="connection-status">
-            <div className={`status-indicator ${state.connected ? 'connected' : 'disconnected'}`} />
-            <span>{state.connected ? 'Connected' : 'Connecting...'}</span>
+            <div className="status-indicator frontend-ready" />
+            <span>Browser Ready</span>
           </div>
         </div>
       </header>
@@ -111,30 +83,23 @@ function App() {
 
       {/* Main Content */}
       <div className="main-content">
-        <SplitPane
-          split="vertical"
-          minSize={400}
-          defaultSize="50%"
-          className="main-split-pane"
-        >
-          {/* Left Panel - Code Editor */}
+        <div className="content-layout">
           <div className="left-panel">
             <div className="panel-header">
               <Code size={16} />
               <span>Code Editor</span>
+              <div className="header-actions">
+                <div className="browser-indicator">
+                  <Globe size={14} />
+                </div>
+              </div>
             </div>
             <div className="panel-content">
               <CodeEditor height="100%" />
             </div>
           </div>
 
-          {/* Right Panel - Memory Visualizer */}
-          <SplitPane
-            split="horizontal"
-            minSize={200}
-            defaultSize="70%"
-            className="right-split-pane"
-          >
+          <div className="right-panel">
             {/* Memory Visualizer */}
             <div className="memory-panel">
               <div className="panel-header">
@@ -142,9 +107,7 @@ function App() {
                 <span>Memory Inspector</span>
               </div>
               <div className="panel-content">
-                <MemoryVisualizer
-                  memoryState={state.memory}
-                />
+                <MemoryVisualizer />
               </div>
             </div>
 
@@ -158,19 +121,19 @@ function App() {
                 <ConsoleOutput />
               </div>
             </div>
-          </SplitPane>
-        </SplitPane>
+          </div>
+        </div>
       </div>
 
       {/* C++ Export Modal */}
-      {showCppModal && state.cppCode && (
-        <div className="modal-overlay" onClick={() => setShowCppModal(false)}>
+      {state.cppCode && (
+        <div className="modal-overlay" onClick={() => actions.resetExecution()}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Generated C++ Code</h3>
               <button
                 className="close-button"
-                onClick={() => setShowCppModal(false)}
+                onClick={() => actions.resetExecution()}
               >
                 ×
               </button>
@@ -184,8 +147,25 @@ function App() {
               <button
                 className="copy-button"
                 onClick={() => {
-                  navigator.clipboard.writeText(state.cppCode!);
-                  alert('C++ code copied to clipboard!');
+                  if (state.cppCode) {
+                    navigator.clipboard.writeText(state.cppCode);
+                    // Simple notification
+                    const notification = document.createElement('div');
+                    notification.textContent = 'C++ code copied to clipboard!';
+                    notification.style.cssText = `
+                      position: fixed;
+                      top: 20px;
+                      right: 20px;
+                      background-color: #4ec9b0;
+                      color: white;
+                      padding: 12px 16px;
+                      border-radius: 4px;
+                      z-index: 10000;
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                    `;
+                    document.body.appendChild(notification);
+                    setTimeout(() => document.body.removeChild(notification), 2000);
+                  }
                 }}
               >
                 Copy to Clipboard
@@ -193,13 +173,17 @@ function App() {
               <button
                 className="download-button"
                 onClick={() => {
-                  const blob = new Blob([state.cppCode!], { type: 'text/plain' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = 'generated_code.cpp';
-                  a.click();
-                  URL.revokeObjectURL(url);
+                  if (state.cppCode) {
+                    const blob = new Blob([state.cppCode], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'generated_code.cpp';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                  }
                 }}
               >
                 Download File
@@ -209,7 +193,7 @@ function App() {
         </div>
       )}
 
-      <style jsx global>{`
+      <style>{`
         * {
           margin: 0;
           padding: 0;
@@ -223,13 +207,14 @@ function App() {
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
           overflow: hidden;
+          background-color: #0d1117;
         }
 
         .app {
           display: flex;
           flex-direction: column;
           height: 100vh;
-          background-color: #1e1e1e;
+          background-color: #0d1117;
           color: #cccccc;
         }
 
@@ -238,8 +223,8 @@ function App() {
           justify-content: space-between;
           align-items: center;
           padding: 8px 16px;
-          background-color: #2d2d30;
-          border-bottom: 1px solid #3e3e42;
+          background-color: #1e1e1e;
+          border-bottom: 1px solid #333333;
         }
 
         .header-left {
@@ -281,43 +266,61 @@ function App() {
           border-radius: 50%;
         }
 
-        .status-indicator.connected {
+        .status-indicator.frontend-ready {
           background-color: #4ec9b0;
+          animation: glow 2s infinite;
         }
 
-        .status-indicator.disconnected {
-          background-color: #e74c3c;
+        @keyframes glow {
+          0% { box-shadow: 0 0 5px rgba(78, 201, 176, 0.5); }
+          50% { box-shadow: 0 0 20px rgba(78, 201, 176, 0.8); }
+          100% { box-shadow: 0 0 5px rgba(78, 201, 176, 0.5); }
         }
 
         .main-content {
           flex: 1;
           overflow: hidden;
+          background-color: #0d1117;
         }
 
-        .main-split-pane {
-          position: relative !important;
+        .content-layout {
+          display: flex;
+          height: 100%;
+          gap: 1px;
         }
 
-        .right-split-pane {
-          position: relative !important;
-        }
-
-        .left-panel,
-        .memory-panel,
-        .console-panel {
+        .left-panel {
+          flex: 1;
           display: flex;
           flex-direction: column;
-          height: 100%;
-          background-color: #252526;
+          background-color: #1e1e1e;
+          border: 1px solid #333333;
+        }
+
+        .right-panel {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 1px;
+        }
+
+        .memory-panel,
+        .console-panel {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          background-color: #1e1e1e;
+          border: 1px solid #333333;
         }
 
         .panel-header {
           display: flex;
+          justify-content: space-between;
           align-items: center;
           gap: 8px;
           padding: 8px 12px;
-          background-color: #2d2d30;
-          border-bottom: 1px solid #3e3e42;
+          background-color: #252526;
+          border-bottom: 1px solid #333333;
           font-size: 13px;
           font-weight: 500;
         }
@@ -327,40 +330,21 @@ function App() {
           overflow: hidden;
         }
 
-        /* SplitPane overrides */
-        .Resizer {
-          background-color: #3e3e42;
-          opacity: 0.2;
-          z-index: 1;
-          -moz-box-sizing: border-box;
-          -webkit-box-sizing: border-box;
-          box-sizing: border-box;
-          -moz-background-clip: padding;
-          -webkit-background-clip: padding;
-          background-clip: padding-box;
+        .header-actions {
+          display: flex;
+          gap: 4px;
+          align-items: center;
         }
 
-        .Resizer:hover {
-          -webkit-transition: all 2s ease;
-          transition: all 2s ease;
-          opacity: 0.5;
-        }
-
-        .Resizer.horizontal {
-          height: 11px;
-          margin: -5px 0;
-          border-top: 5px solid rgba(255, 255, 255, 0);
-          border-bottom: 5px solid rgba(255, 255, 255, 0);
-          cursor: row-resize;
-          width: 100%;
-        }
-
-        .Resizer.vertical {
-          width: 11px;
-          margin: 0 -5px;
-          border-left: 5px solid rgba(255, 255, 255, 0);
-          border-right: 5px solid rgba(255, 255, 255, 0);
-          cursor: col-resize;
+        .browser-indicator {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 20px;
+          height: 20px;
+          background-color: #252526;
+          border-radius: 50%;
+          border: 1px solid #4ec9b0;
         }
 
         /* Modal styles */
@@ -370,7 +354,7 @@ function App() {
           left: 0;
           right: 0;
           bottom: 0;
-          background-color: rgba(0, 0, 0, 0.7);
+          background-color: rgba(0, 0, 0, 0.8);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -378,14 +362,15 @@ function App() {
         }
 
         .modal-content {
-          background-color: #2d2d30;
+          background-color: #1e1e1e;
           border-radius: 8px;
           width: 80%;
           max-width: 800px;
           max-height: 80vh;
           display: flex;
           flex-direction: column;
-          border: 1px solid #3e3e42;
+          border: 1px solid #333333;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
 
         .modal-header {
@@ -393,7 +378,7 @@ function App() {
           justify-content: space-between;
           align-items: center;
           padding: 16px 20px;
-          border-bottom: 1px solid #3e3e42;
+          border-bottom: 1px solid #333333;
         }
 
         .modal-header h3 {
@@ -414,11 +399,11 @@ function App() {
           display: flex;
           align-items: center;
           justify-content: center;
+          border-radius: 4px;
         }
 
         .close-button:hover {
-          background-color: #3e3e42;
-          border-radius: 4px;
+          background-color: #333333;
         }
 
         .modal-body {
@@ -428,12 +413,12 @@ function App() {
         }
 
         .cpp-code {
-          background-color: #1e1e1e;
-          border: 1px solid #3e3e42;
+          background-color: #0d1117;
+          border: 1px solid #333333;
           border-radius: 4px;
           padding: 16px;
           overflow-x: auto;
-          font-family: 'Consolas', 'Monaco', monospace;
+          font-family: 'Consolas', 'Monaco', 'Menlo', monospace;
           font-size: 13px;
           line-height: 1.4;
           color: #cccccc;
@@ -444,13 +429,13 @@ function App() {
           justify-content: flex-end;
           gap: 12px;
           padding: 16px 20px;
-          border-top: 1px solid #3e3e42;
+          border-top: 1px solid #333333;
         }
 
         .copy-button,
         .download-button {
           padding: 8px 16px;
-          border: 1px solid #3e3e42;
+          border: 1px solid #333333;
           border-radius: 4px;
           background-color: #0e639c;
           color: white;
@@ -462,6 +447,11 @@ function App() {
         .copy-button:hover,
         .download-button:hover {
           background-color: #1177bb;
+        }
+
+        .copy-button:active,
+        .download-button:active {
+          background-color: #0d4f8c;
         }
       `}</style>
     </div>

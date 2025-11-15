@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { useWebSocket } from '../hooks/useWebSocket';
+import { useLowLogicCompiler } from '../hooks/useLowLogicCompiler';
 
 export const ConsoleOutput: React.FC = () => {
-  const { state } = useWebSocket();
+  const { state, actions } = useLowLogicCompiler();
   const consoleEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new output is added
@@ -11,8 +11,7 @@ export const ConsoleOutput: React.FC = () => {
   }, [state.execution.output]);
 
   const clearConsole = () => {
-    // This would need to be added to the WebSocket hook
-    console.log('Clear console');
+    actions.resetExecution();
   };
 
   return (

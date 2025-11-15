@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
+import { useLowLogicCompiler } from '../hooks/useLowLogicCompiler';
 import { MemoryState, VariableInfo, HeapAllocation, CallStackFrame } from '../types';
 
 interface MemoryVisualizerProps {
-  memoryState?: MemoryState;
   className?: string;
 }
 
@@ -119,7 +119,9 @@ const CallStackDisplay: React.FC<CallStackDisplayProps> = ({ callStack, selected
   );
 };
 
-export const MemoryVisualizer: React.FC<MemoryVisualizerProps> = ({ memoryState, className }) => {
+export const MemoryVisualizer: React.FC<MemoryVisualizerProps> = ({ className }) => {
+  const { state } = useLowLogicCompiler();
+  const memoryState = state.memory;
   const [selectedAddress, setSelectedAddress] = useState<string>();
   const [selectedFrame, setSelectedFrame] = useState<number>();
   const [activeTab, setActiveTab] = useState<'variables' | 'heap' | 'stack'>('variables');

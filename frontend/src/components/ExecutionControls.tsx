@@ -1,9 +1,9 @@
 import React from 'react';
-import { Play, Pause, StepForward, Square, RotateCcw, Download } from 'lucide-react';
-import { useWebSocket } from '../hooks/useWebSocket';
+import { Play, Pause, StepForward, Square, RotateCcw, Download, Cpu } from 'lucide-react';
+import { useLowLogicCompiler } from '../hooks/useLowLogicCompiler';
 
 export const ExecutionControls: React.FC = () => {
-  const { state, actions } = useWebSocket();
+  const { state, actions } = useLowLogicCompiler();
 
   const handleRun = () => {
     if (state.execution.status === 'idle' || state.execution.status === 'finished') {
@@ -51,7 +51,7 @@ export const ExecutionControls: React.FC = () => {
         <div className="button-group">
           <button
             onClick={handleRun}
-            disabled={!canRun || !state.connected}
+            disabled={!canRun}
             className="control-button run-button"
             title="Run (F5)"
           >
@@ -61,7 +61,7 @@ export const ExecutionControls: React.FC = () => {
 
           <button
             onClick={handleStep}
-            disabled={!canStep || !state.connected}
+            disabled={!canStep}
             className="control-button step-button"
             title="Step (F10)"
           >
@@ -71,7 +71,7 @@ export const ExecutionControls: React.FC = () => {
 
           <button
             onClick={handleContinue}
-            disabled={!canContinue || !state.connected}
+            disabled={!canContinue}
             className="control-button continue-button"
             title="Continue (F5)"
           >
@@ -81,7 +81,7 @@ export const ExecutionControls: React.FC = () => {
 
           <button
             onClick={handleStop}
-            disabled={!canStop || !state.connected}
+            disabled={!canStop}
             className="control-button stop-button"
             title="Stop (Shift+F5)"
           >
@@ -100,9 +100,9 @@ export const ExecutionControls: React.FC = () => {
         </div>
 
         <div className="status-indicator">
-          <div className={`status-dot ${state.connected ? 'connected' : 'disconnected'}`} />
+          <div className="status-dot frontend-only" />
           <span className="status-text">
-            {state.connected ? 'Connected' : 'Disconnected'}
+            Frontend-Only
           </span>
         </div>
       </div>
@@ -133,7 +133,6 @@ export const ExecutionControls: React.FC = () => {
       <div className="export-controls">
         <button
           onClick={handleExportCpp}
-          disabled={!state.connected}
           className="control-button export-button"
           title="Export to C++"
         >
@@ -247,12 +246,15 @@ export const ExecutionControls: React.FC = () => {
           border-radius: 50%;
         }
 
-        .status-dot.connected {
+        .status-dot.frontend-only {
           background-color: #4ec9b0;
+          animation: pulse 2s infinite;
         }
 
-        .status-dot.disconnected {
-          background-color: #e74c3c;
+        @keyframes pulse {
+          0% { opacity: 1; }
+          50% { opacity: 0.5; }
+          100% { opacity: 1; }
         }
 
         .status-text {
